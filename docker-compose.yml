@@ -1,24 +1,27 @@
 version: '3.7'
 
 services:
-  mysql:
-      image: mysql:5.7
-      restart: always
-      environment:
-        MYSQL_DATABASE: 'workix'
-        # So you don't have to use root, but you can if you like
-        MYSQL_USER: 'workix'
-        # You can use whatever password you like
-        MYSQL_PASSWORD: 'workix'
-        # Password for root access
-        MYSQL_ROOT_PASSWORD: 'root'
-      ports:
-        # <Port exposed> : < MySQL Port running inside container>
-        - '3306:3306'
-      expose:
-        # Opens port 3306 on the container
-        - '3306'
-        # Where our data will be persisted
+#  mysql:
+#      image: mysql:latest
+#      restart: always
+#      environment:
+#        MYSQL_DATABASE: 'workix'
+#        # So you don't have to use root, but you can if you like
+#        MYSQL_USER: 'workix'
+#        # You can use whatever password you like
+#        MYSQL_PASSWORD: 'workix'
+#        # Password for root access
+#        MYSQL_ROOT_PASSWORD: 'root'
+#        MYSQL_ROOT_HOST: '172.26.0.1'
+#      ports:
+#        # <Port exposed> : < MySQL Port running inside container>
+#        - '3306:3306'
+#      expose:
+#        # Opens port 3306 on the container
+#        - '3306'
+#        # Where our data will be persisted
+#      volumes:
+#      - /var/lib/mysql:/var/lib/mysql
   
 
   # The 'setup' service runs a one-off script which initializes the
@@ -67,25 +70,25 @@ services:
       - elk
 
   logstash:
-    build:
-      context: logstash/
+    build:      
+      context: logstash/      
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
-      - ./logstash/driver:/usr/share/logstash/logstash-core/lib/jars/
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z          
     ports:
       - "5044:5044"
       - "5000:5000/tcp"
       - "5000:5000/udp"
-      - "9600:9600"
+      - "9600:9600"  
     environment:
       LS_JAVA_OPTS: -Xms256m -Xmx256m
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
       - elk
     depends_on:
+#      - mysql
       - elasticsearch
 
   kibana:
@@ -106,7 +109,7 @@ services:
 
 networks:
   elk:
-    driver: bridge
+    driver: bridge    
 
 volumes:
   setup:
